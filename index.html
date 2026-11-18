@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#1d1128" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Run Sam, Run! — The Great Samosa Escape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+    <!-- HUD OVERLAY -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-stats">
+          <div class="stat-pill score-pill">
+            <span class="stat-icon">🏃</span>
+            <div>
+              <div class="stat-label">DISTANCE</div>
+              <div class="stat-value"><span id="hud-distance">0</span>m</div>
+            </div>
+          </div>
+          <div class="stat-pill coin-pill">
+            <span class="stat-icon">🥟</span>
+            <div>
+              <div class="stat-label">MASALA PTS</div>
+              <div class="stat-value" id="hud-coins">0</div>
+            </div>
+          </div>
+          <div class="stat-pill high-pill">
+            <span class="stat-icon">🏆</span>
+            <div>
+              <div class="stat-label">BEST</div>
+              <div class="stat-value"><span id="hud-best">0</span>m</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="danger-meter-wrap">
+          <div class="danger-header">
+            <span id="chaser-label">👵 DADI'S BELAN PROXIMITY</span>
+            <span id="speed-badge">1.0x SPEED</span>
+          </div>
+          <div class="danger-track">
+            <div id="danger-fill" class="danger-fill" style="width: 28%"></div>
+            <div id="danger-chaser-icon" class="danger-icon chaser-pos" style="left: 28%">
+              <img src="assets/chaser_face.png" alt="Chaser" class="danger-face-img" />
+            </div>
+            <div class="danger-icon sam-pos">
+              <img src="assets/samosa_hero.png" alt="Sam" class="danger-face-img" />
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-controls">
+          <button id="btn-fullscreen" class="hud-btn" title="Fullscreen & Lock Horizontal">⛶</button>
+          <button id="btn-gear" class="hud-btn" title="Toggle Red Sneakers & Sweatband (G)">👟 GEAR: ON</button>
+          <button id="btn-mute" class="hud-btn" title="Mute / Unmute Audio (M)">🔊</button>
+          <button id="btn-pause" class="hud-btn" title="Pause Game (P)">⏸️</button>
+        </div>
+      </div>
+
+      <!-- Active Powerups Bar -->
+      <div id="powerup-bar" class="powerup-bar"></div>
+
+      <!-- Dynamic Comic Callout Toast -->
+      <div id="comic-toast" class="comic-toast hidden">BHAAGO SAM!</div>
+
+      <!-- Mobile Touch Controls -->
+      <div class="mobile-controls">
+        <button id="touch-duck" class="touch-btn duck-btn">⬇️ SLIDE / DUCK</button>
+        <button id="touch-jump" class="touch-btn jump-btn">⬆️ JUMP / DOUBLE JUMP</button>
+      </div>
+    </div>
+
+    <!-- START / TITLE SCREEN OVERLAY -->
+    <div id="start-screen" class="overlay-screen">
+      <div class="modal-card start-card">
+        <div class="ribbon-badge">NAMAK SINGHARA ARCADE EDITION</div>
+        <div class="hero-showcase">
+          <div class="hero-halo"></div>
+          <img src="assets/chaser_face.png" alt="Hungry Chaser" class="chaser-portrait-preview" title="The Chaser!" />
+          <span class="chase-arrow">💨</span>
+          <img src="assets/samosa_hero.png" alt="Sam the Sentient Samosa" class="hero-portrait" />
+          <div class="speech-bubble">"WAIT... I'M THE EVENING SNACK?!"</div>
+        </div>
+
+        <h1 class="game-title">RUN SAM, RUN!</h1>
+        <h2 class="game-subtitle">THE GREAT SAMOSA ESCAPE</h2>
+
+        <p class="story-blurb">
+          Fresh out of the kadhai with a human face and sudden sentience! Leap off the tea-party plate,
+          outrun <strong>Angry Dadi's Belan</strong>, barking <strong>Gully Dogs</strong>, and hungry <strong>Chai Uncles</strong> across the chaotic bazaar!
+        </p>
+
+        <div class="mechanics-grid">
+          <div class="mech-box danger-box">
+            <h3>⚠️ DODGE OBSTACLES</h3>
+            <ul>
+              <li><span>🥖</span> <strong>Flying Belan:</strong> Duck or Jump!</li>
+              <li><span>🧅</span> <strong>Giant Red Onion:</strong> Jump over!</li>
+              <li><span>🟢</span> <strong>Spicy Chutney:</strong> Slows you & Dadi catches up!</li>
+              <li><span>🔥</span> <strong>Sizzling Oil Patch:</strong> Instant re-fry hazard!</li>
+            </ul>
+          </div>
+          <div class="mech-box power-box">
+            <h3>⚡ COLLECT POWER-UPS</h3>
+            <ul>
+              <li><span>☕</span> <strong>Cutting Chai:</strong> Turbo Speed & Invulnerable Dash!</li>
+              <li><span>🛡️</span> <strong>Extra Crispy Shield:</strong> Smash right through obstacles!</li>
+              <li><span>🧲</span> <strong>Mint Chutney Magnet:</strong> Pulls all Masala Coins nearby!</li>
+              <li><span>🌶️</span> <strong>Mirchi Coins:</strong> Bonus points & escape boost!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="costume-toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="chk-comic-gear" checked />
+            <span class="slider"></span>
+          </label>
+          <span>Equip Tiny Red Sneakers, Sweatband & Panic Sweat Drops</span>
+        </div>
+
+        <div class="cta-row">
+          <button id="btn-start-game" class="primary-cta">🔥 LEAP OUT THE WINDOW! (SPACE)</button>
+        </div>
+
+        <div class="controls-hint">
+          <span><strong>SPACE / W / UP:</strong> Jump &amp; Double-Jump</span>
+          <span>•</span>
+          <span><strong>DOWN / S:</strong> Fast Drop &amp; Slide Under Belans</span>
+          <span>•</span>
+          <span><strong>G:</strong> Toggle Sneakers/Sweatband</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE OVERLAY -->
+    <div id="pause-screen" class="overlay-screen hidden">
+      <div class="modal-card small-card">
+        <h2 class="game-title">CHAI BREAK! ☕</h2>
+        <p class="story-blurb">Sam is catching his breath on the windowsill.</p>
+        <div class="cta-row">
+          <button id="btn-resume-game" class="primary-cta">▶️ KEEP RUNNING!</button>
+          <button id="btn-restart-pause" class="secondary-cta">🔄 RESTART</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="gameover-screen" class="overlay-screen hidden">
+      <div class="modal-card gameover-card">
+        <div id="gameover-badge" class="ribbon-badge danger-ribbon">SERVED WITH CHUTNEY!</div>
+        <div class="hero-showcase compact">
+          <img src="assets/chaser_face.png" alt="Chaser Got You" class="chaser-portrait-preview" />
+          <img src="assets/samosa_hero.png" alt="Sam Caught" class="hero-portrait caught-shake" />
+          <div id="gameover-quips" class="speech-bubble danger-bubble">"DADI GOT ME!"</div>
+        </div>
+
+        <h2 id="gameover-title" class="game-title">TEA PARTY SNACKED!</h2>
+        <p id="gameover-reason" class="story-blurb">Angry Dadi cornered you with her spinning rolling pin!</p>
+
+        <div class="score-summary-grid">
+          <div class="summary-card">
+            <span class="sum-label">DISTANCE ESCAPED</span>
+            <span class="sum-val" id="final-distance">0m</span>
+          </div>
+          <div class="summary-card">
+            <span class="sum-label">MASALA SCORE</span>
+            <span class="sum-val" id="final-coins">0</span>
+          </div>
+          <div class="summary-card">
+            <span class="sum-label">OBSTACLES SMASHED</span>
+            <span class="sum-val" id="final-smashed">0</span>
+          </div>
+          <div class="summary-card highlight">
+            <span class="sum-label">ALL-TIME BEST</span>
+            <span class="sum-val" id="final-best">0m</span>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button id="btn-retry-game" class="primary-cta">🔥 FRY AGAIN &amp; RUN! (SPACE)</button>
+          <button id="btn-home-screen" class="secondary-cta">🏠 TITLE SCREEN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "Run Sam, Run! — The Great Samosa Escape",
+  "short_name": "Run Sam, Run!",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1d1128",
+  "theme_color": "#ff7b00"
+}
